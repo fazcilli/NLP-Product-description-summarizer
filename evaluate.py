@@ -28,7 +28,7 @@ def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):
             decoder_attentions[di] = decoder_attention.data
             topv, topi = decoder_output.data.topk(1)
             if topi.item() == EOS_TOKEN:
-                decoded_words.append(EOS_TOKEN)
+                decoded_words.append('<EOS>')
                 break
             else:
                 decoded_words.append(output_lang.index2word[topi.item()])
@@ -56,7 +56,7 @@ def showAttention(input_sentence, output_words, attentions):
 
     # Set up axes
     ax.set_xticklabels([''] + input_sentence.split(' ') +
-                       [EOS_TOKEN], rotation=90)
+                       ['<EOS>'], rotation=90)
     ax.set_yticklabels([''] + output_words)
 
     # Show label at every tick

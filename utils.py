@@ -7,19 +7,19 @@ import math
 from variables import *
 plt.switch_backend('agg')
 
-def indexesFromSentence(lang, sentence):
-    return [lang.word2index[word] for word in sentence.split(' ')]
+def indexesFromSentence(vocab, sentence):
+    return [vocab.word2index[word] for word in sentence.split(' ')]
 
 
-def tensorFromSentence(lang, sentence):
-    indexes = indexesFromSentence(lang, sentence)
+def tensorFromSentence(vocab, sentence):
+    indexes = indexesFromSentence(vocab, sentence)
     indexes.append(EOS_TOKEN)
     return torch.tensor(indexes, dtype=torch.long, device=device).view(-1, 1)
 
 
-def tensorsFromPair(pair):
-    input_tensor = tensorFromSentence(input_lang, pair[0])
-    target_tensor = tensorFromSentence(output_lang, pair[1])
+def tensorsFromPair(vocab, pair):
+    input_tensor = tensorFromSentence(vocab, pair['Long Description'].values[0])
+    target_tensor = tensorFromSentence(vocab, pair['Short Description'].values[0])
     return (input_tensor, target_tensor)
 
 def asMinutes(s):

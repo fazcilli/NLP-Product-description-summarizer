@@ -2,7 +2,7 @@ from typing import List
 
 import torch
 from torch.utils.data import Dataset
-
+import pandas as pd
 
 class Vocabulary():
     """ Object holding vocabulary and mappings
@@ -83,39 +83,37 @@ class ProductDescriptionDataset(Dataset):
 
     def __getitem__(self, item: int):
         instance = self._dataset[item]
-        return self.tensorize(tokens=instance['source'],
+        return self.tensorize(tokens=instance['tokens'],
+                              tags=instance['tags'],
                               max_length=self._max_length)
 
     def _load_dataset(self, dataset_file):
-        label_column = 3
         # read the dataset file, extracting tokens and tags
-        with open(dataset_file, 'r') as f:
-            tokens, tags = [], []
-            for line in f:
-                elements = line.strip().split('\t')
-                # empty line means end of sentence
-                if elements == [""]:
-                    self._dataset.append({'tokens': tokens, 'tags': tags})
-                    tokens, tags = [], []
-                else:
-                    tokens.append(elements[0].lower())
-                    tags.append(elements[label_column])
+        data = pd.read_csv(dataset_file)
+        for i, row in data.iterrows():
+            self._dataset.append({
+                'tokens': row['Long Description'].strip().split(' '),
+                'tags': row['Short Description'].strip().split(' '),
+            })
 
     def get_tokens_list(self):
-        tokens = [token for d in self._dataset for token in d['tokens']]
-        tokens.append([token for d in self._dataset for token in d['tags']])
+        tokens = [token for d in self._dataset for token in (d['tokens'] + d['tags'])]
         return sorted(set(tokens))
 
-    def get_tags_list(self):
-        tags = [tag for d in self._dataset for tag in d['tags']]
-        return sorted(set(tags))
+    # def get_tags_list(self):
+    #     tags = [tag for d in self._dataset for tag in d['tags']]
+    #     return sorted(set(tags))
 
     def set_vocab(self, token_vocab: Vocabulary):
         self.vocab = token_vocab
 
-    def tensorize(self, tokens: list, max_length: int = None):
+    def tensorize(self, tokens: list, tags: list, max_length: int = None):
         assert self.vocab is not None
         token_ids = self.vocab.map_tokens_to_ids(tokens, max_length)
-        tensor_dict = {'token_ids': torch.LongTensor(token_ids)}
+        tags_ids = self.vocab.map_tokens_to_ids(tags, max_length)
+        tensor_dict = {
+            'token_ids': torch.LongTensor(token_ids),
+            'tag_ids': torch.LongTensor(tags_ids),
+        }
 
         return tensor_dict
