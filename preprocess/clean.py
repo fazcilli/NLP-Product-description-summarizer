@@ -100,7 +100,12 @@ def load_data():
 
 if __name__ == '__main__':
     df = pd.read_csv('../data/all.csv')
+    drop_idx = []
     for i, row in df.iterrows():
-        row[2] = clean_contractions(row[2], remove_stopwords=False)
-        row[3] = clean_contractions(row[3], remove_stopwords=False)
+        row[2] = clean_contractions(row[2], remove_stopwords=True)
+        row[3] = clean_contractions(row[3])
+        if len(row[2].split(' ')) < 10:
+            drop_idx.append(row[0])
+    df.drop(index=drop_idx, inplace=True)
+
     df.to_csv('../data/all_cleaned.csv')

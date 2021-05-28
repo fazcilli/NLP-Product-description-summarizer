@@ -5,7 +5,6 @@ from sklearn.feature_extraction.text import CountVectorizer
 import time
 import math
 from variables import *
-plt.switch_backend('agg')
 
 def indexesFromSentence(vocab, sentence):
     return [vocab.word2index[word] for word in sentence.split(' ')]
@@ -18,8 +17,8 @@ def tensorFromSentence(vocab, sentence):
 
 
 def tensorsFromPair(vocab, pair):
-    input_tensor = tensorFromSentence(vocab, pair['Long Description'].values[0])
-    target_tensor = tensorFromSentence(vocab, pair['Short Description'].values[0])
+    input_tensor = tensorFromSentence(vocab, pair[0])
+    target_tensor = tensorFromSentence(vocab, pair[1])
     return (input_tensor, target_tensor)
 
 def asMinutes(s):
@@ -43,6 +42,7 @@ def showPlot(points):
     loc = ticker.MultipleLocator(base=0.2)
     ax.yaxis.set_major_locator(loc)
     plt.plot(points)
+    plt.show()
 
 
 def word_count_bins():
