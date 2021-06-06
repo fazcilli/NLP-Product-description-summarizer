@@ -23,7 +23,7 @@ torch==1.8.1
 torchtext==0.9.1
 tqdm==4.49.0
 traitlets==5.0.5
-transformers==4.7.0.dev0
+git+https://github.com/huggingface/transformers
 typer==0.3.2
 typing-extensions==3.7.4.3
 urllib3==1.26.4
