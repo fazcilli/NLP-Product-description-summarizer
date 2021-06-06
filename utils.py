@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 import time
 import math
+
+from preprocess.clean import clean_contractions
 from variables import *
 
 def indexesFromSentence(vocab, sentence):
@@ -70,6 +72,16 @@ def word_count_bins():
     length_df.hist(bins=15, figsize=(16, 8))
     plt.show()
 
+def overlap_count_bins():
+    data = pd.read_csv('./data/all.csv', usecols=['Long Description', 'Short Description'])
+    ld_count = []
+    for i, row in data.iterrows():
+        l = len(set(clean_contractions(row[0]).split(' ')).intersection(set(clean_contractions(row[1]).split(' '))))
+        ld_count.append(min(80, l))
+    length_df = pd.DataFrame({'': ld_count})
+    length_df.hist(bins=20, figsize=(10, 8))
+    plt.show()
+
 def load_data():
     total = 0
     df = pd.DataFrame()
@@ -100,4 +112,5 @@ def split_data():
     print(train.shape)
 
 if __name__ == '__main__':
-    split_data()
+    overlap_count_bins()
+    # split_data()

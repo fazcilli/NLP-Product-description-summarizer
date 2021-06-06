@@ -475,7 +475,11 @@ def main():
     )
 
     # Metric
-    metric = load_metric("rouge")
+    metric_conf = {
+        "rouge": load_metric("rouge"),
+        "bleu": load_metric("bleu"),
+        "meteor": load_metric("meteor")
+    }
 
     def postprocess_text(preds, labels):
         preds = [pred.strip() for pred in preds]
@@ -500,13 +504,15 @@ def main():
         # Some simple post-processing
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
 
-        result = metric.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
-        # Extract a few results from ROUGE
-        result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
+        # Extract a results from few metrics
+        rouge_score = metric_conf["rouge"].compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
+        result = {key: round(value.mid.fmeasure * 100,4) for key, value in rouge_score.items()}
+        references = [[label.split(' ')] for label in decoded_labels]
+        result["bleu"] = round(metric_conf["bleu"].compute(predictions=[p.split(' ') for p in decoded_preds], references=references)['bleu'], 4)
+        result["meteor"] = round(metric_conf["meteor"].compute(predictions=decoded_preds, references=decoded_labels)['meteor'], 4)
 
         prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
-        result["gen_len"] = np.mean(prediction_lens)
-        result = {k: round(v, 4) for k, v in result.items()}
+        result["gen_len"] = round(np.mean(prediction_lens), 4)
         return result
 
     # Initialize our Trainer

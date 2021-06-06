@@ -104,8 +104,15 @@ if __name__ == '__main__':
     for i, row in df.iterrows():
         row[2] = clean_contractions(row[2], remove_stopwords=True)
         row[3] = clean_contractions(row[3])
-        if len(row[2].split(' ')) < 10:
+        long = row[2].split(' ')
+        short = row[3].split(' ')
+        if len(long) < 10:
             drop_idx.append(row[0])
-    df.drop(index=drop_idx, inplace=True)
+        elif len(short) < 4:
+            drop_idx.append(row[0])
+        if len(set(long).intersection(set(short))) < 3:
+            drop_idx.append(row[0])
 
+    df.drop(index=drop_idx, inplace=True)
+    df.reindex()
     df.to_csv('../data/all_cleaned.csv')
