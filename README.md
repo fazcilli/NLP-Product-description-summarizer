@@ -1,2 +1,2 @@
-# cs272-project
-CS 272 - Product description summarization
+# Product description summarizer
+Summarizes long product description into short ones in order to show a short description on product listings for e-commerce websites.
